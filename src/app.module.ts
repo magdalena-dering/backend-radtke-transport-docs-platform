@@ -1,3 +1,4 @@
+import { CarsModule } from './cars/car.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { configSchema } from './config.schema';
       }),
     }),
     AuthModule,
+    CarsModule,
   ],
 })
 export class AppModule {}

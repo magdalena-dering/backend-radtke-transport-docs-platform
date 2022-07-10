@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-payload.interface';
@@ -34,7 +34,6 @@ export class AuthService {
       await this.authRepository.save(user);
     } catch (error) {
       if (error.code === ERROR_DUPLICATE_KEY_VALUE) {
-        console.log(error);
         throw new ConflictException(
           `The username: ${username} already exists.`,
         );
