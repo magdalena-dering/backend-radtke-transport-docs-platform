@@ -1,4 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { User } from './../../auth/entities/user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { ExclusionMetadata } from 'typeorm/metadata/ExclusionMetadata';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Car {
@@ -19,4 +22,8 @@ export class Car {
 
   @Column()
   note: string;
+
+  @ManyToOne((_type) => User, (user) => user.cars, { eager: false })
+  @Exclude({ toPlainOnly: true })
+  user: User;
 }
