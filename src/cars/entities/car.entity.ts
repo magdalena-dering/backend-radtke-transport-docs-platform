@@ -1,6 +1,5 @@
 import { User } from './../../auth/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { ExclusionMetadata } from 'typeorm/metadata/ExclusionMetadata';
 import { Exclude } from 'class-transformer';
 
 @Entity()
@@ -11,8 +10,8 @@ export class Car {
   @Column()
   name: string;
 
-  @Column()
-  registration_number: string;
+  @Column({ unique: true }) // The number plate must be unique.
+  numberPlate: string;
 
   @Column()
   date: string;

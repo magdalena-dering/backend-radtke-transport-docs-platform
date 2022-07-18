@@ -18,25 +18,32 @@ import { Car } from './entities/car.entity';
 @Controller('cars')
 @UseGuards(AuthGuard())
 export class CarsController {
-  constructor(private readonly carsService: CarsService) {}
+  constructor(private readonly carsService: CarsService) { }
 
   @Get()
   getAll(@GetUser() user: User): Promise<Car[]> {
     return this.carsService.getAll(user);
   }
 
-  @Get('/:id')
-  getById(@Param('id') id: string, @GetUser() user: User): Promise<Car> {
-    return this.carsService.getById(id, user);
+  @Get('/:numberPlate')
+  getByNumberPlate(
+    @Param('numberPlate') numberPlate: string,
+    @GetUser() user: User,
+  ): Promise<Car> {
+    return this.carsService.getByNumberPlate(numberPlate, user);
   }
 
-  @Patch('/:id')
-  updateById(
-    @Param('id') id: string,
+  @Patch('/:numberPlate')
+  updateByNumberPlate(
+    @Param('numberPlate') numberPlate: string,
     @Body() createCarDto: CreateCarDto,
     @GetUser() user: User,
   ): Promise<Car> {
-    return this.carsService.updateById(id, createCarDto, user);
+    return this.carsService.updateByNumberPlate(
+      numberPlate,
+      createCarDto,
+      user,
+    );
   }
 
   @Post()
@@ -47,8 +54,11 @@ export class CarsController {
     return this.carsService.create(createCarDto, user);
   }
 
-  @Delete('/:id')
-  deleteById(@Param('id') id: string, @GetUser() user: User): Promise<void> {
-    return this.carsService.deleteById(id, user);
+  @Delete('/:numberPlate')
+  deleteByNumberPlate(
+    @Param('numberPlate') numberPlate: string,
+    @GetUser() user: User,
+  ): Promise<void> {
+    return this.carsService.deleteByNumberPlate(numberPlate, user);
   }
 }

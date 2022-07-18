@@ -6,7 +6,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true }) // The username needs to be unique.
+  @Column({ unique: true }) // The username must be unique.
   username: string;
 
   @Column()

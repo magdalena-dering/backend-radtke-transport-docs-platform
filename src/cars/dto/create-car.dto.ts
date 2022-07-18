@@ -7,7 +7,7 @@ export class CreateCarDto {
 
   @IsString()
   @IsNotEmpty()
-  registration_number: string;
+  numberPlate: string;
 
   @IsNotEmpty()
   date: string;

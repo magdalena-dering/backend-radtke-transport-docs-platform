@@ -1,5 +1,10 @@
+import { ERROR_DUPLICATE_KEY_VALUE } from './../../consts';
 import { User } from './../auth/entities/user.entity';
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCarDto } from './dto/create-car.dto';
@@ -14,22 +19,35 @@ export class CarsService {
     return query.getMany();
   }
 
-  async getById(id: string, user: User): Promise<Car> {
-    const car = await this.carsRepository.findOne({ where: { id, user } });
+  async getByNumberPlate(numberPlate: string, user: User): Promise<Car> {
+    const car = await this.carsRepository.findOne({
+      where: { numberPlate, user },
+    });
     return car;
   }
 
   async create(createCarDto: CreateCarDto, user: User): Promise<void> {
     const car = this.carsRepository.create({ ...createCarDto, user });
-    await this.carsRepository.save(car);
+    const { numberPlate } = createCarDto;
+    try {
+      await this.carsRepository.save(car);
+    } catch (error) {
+      if (error.code === ERROR_DUPLICATE_KEY_VALUE) {
+        throw new ConflictException(
+          `The number plate: ${numberPlate} already exists.`,
+        );
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
-  async updateById(
-    id: string,
+  async updateByNumberPlate(
+    numberPlate: string,
     createCarDto: CreateCarDto,
     user: User,
   ): Promise<Car> {
-    const car = this.getById(id, user);
+    const car = this.getByNumberPlate(numberPlate, user);
     const changedCar = await this.carsRepository.save({
       ...car,
       ...createCarDto,
@@ -37,7 +55,7 @@ export class CarsService {
     return changedCar;
   }
 
-  async deleteById(id: string, user: User): Promise<void> {
+  async deleteByNumberPlate(id: string, user: User): Promise<void> {
     await this.carsRepository.delete({ id, user });
   }
 }
