@@ -78,3 +78,4 @@ Nest is [MIT licensed](LICENSE).
 - passport-jwt
 - bcrypt
 - class-validator
+- class-transformer

@@ -4,6 +4,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -23,6 +24,11 @@ export class CarsService {
     const car = await this.carsRepository.findOne({
       where: { numberPlate, user },
     });
+    if (!car) {
+      throw new NotFoundException(
+        `Car with number plate ${numberPlate} not found.`,
+      );
+    }
     return car;
   }
 
@@ -47,15 +53,16 @@ export class CarsService {
     createCarDto: CreateCarDto,
     user: User,
   ): Promise<Car> {
-    const car = this.getByNumberPlate(numberPlate, user);
-    const changedCar = await this.carsRepository.save({
+    const car = await this.getByNumberPlate(numberPlate, user);
+    const changedCar = this.carsRepository.save({
       ...car,
       ...createCarDto,
     });
     return changedCar;
   }
 
-  async deleteByNumberPlate(id: string, user: User): Promise<void> {
-    await this.carsRepository.delete({ id, user });
+  async deleteByNumberPlate(numberPlate: string, user: User): Promise<void> {
+    const car = await this.getByNumberPlate(numberPlate, user);
+    await this.carsRepository.delete(car);
   }
 }
