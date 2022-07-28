@@ -7,22 +7,27 @@ import {
   Patch,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/auth/entities/user.entity';
 import { GetUser } from 'src/auth/get-user-decorator';
 import { CarsService } from './car.service';
 import { CreateCarDto } from './dto/create-car.dto';
+import { SearchCarDto } from './dto/search-car.dto';
 import { Car } from './entities/car.entity';
 
 @Controller('cars')
 @UseGuards(AuthGuard())
 export class CarsController {
-  constructor(private readonly carsService: CarsService) { }
+  constructor(private readonly carsService: CarsService) {}
 
   @Get()
-  getAll(@GetUser() user: User): Promise<Car[]> {
-    return this.carsService.getAll(user);
+  getAll(
+    @GetUser() user: User,
+    @Query() searchCarDto: SearchCarDto,
+  ): Promise<Car[]> {
+    return this.carsService.getAll(user, searchCarDto);
   }
 
   @Get('/:numberPlate')

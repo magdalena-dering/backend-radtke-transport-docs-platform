@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateCarDto {
   @IsString()
@@ -17,5 +17,6 @@ export class CreateCarDto {
   distance: string;
 
   @IsString()
+  @IsOptional()
   note: string;
 }

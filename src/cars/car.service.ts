@@ -1,3 +1,4 @@
+import { SearchCarDto } from './dto/search-car.dto';
 import { ERROR_DUPLICATE_KEY_VALUE } from './../../consts';
 import { User } from './../auth/entities/user.entity';
 import {
@@ -15,9 +16,22 @@ import { Car } from './entities/car.entity';
 export class CarsService {
   constructor(@InjectRepository(Car) private carsRepository: Repository<Car>) {}
 
-  async getAll(user: User): Promise<Car[]> {
+  async getAll(user: User, searchCarDto: SearchCarDto): Promise<Car[]> {
     const query = this.carsRepository.createQueryBuilder('car').where({ user });
-    return query.getMany();
+    const { search } = searchCarDto;
+
+    if (search) {
+      query.andWhere(
+        '(LOWER(car.name) LIKE LOWER(:search) OR LOWER(car.numberPlate) LIKE LOWER(:search) OR LOWER(car.date) LIKE LOWER(:search) OR LOWER(car.distance) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+    try {
+      const cars = await query.getMany();
+      return cars;
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async getByNumberPlate(numberPlate: string, user: User): Promise<Car> {
