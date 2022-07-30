@@ -3,12 +3,26 @@
 - App build with Nest.js framework.
 
 ### Authentication service
-- register account (email, password - `passport-jwt`)
-- sign in user
+- registration of account (email, password - `passport-jwt`)
+- logging
 
 ### CRUD service
-- CRUD available only for signed users
-- user can see only their own created cars
+- CREATE: user can add car with data like:
+```
+  name
+  numberPlate
+  date
+  distance
+  note
+```
+* the `numberPlate` must be unique.
+
+- READ: user can see only their owns cars.
+- UPDATE: user can find a car by providing `numberPlate` and change the displayed data.
+- DELETE: user can delete car by providing `numberPlate`.
+
+### Search: 
+- user can search cars by providing text in params.
 
 ## Installation
 
