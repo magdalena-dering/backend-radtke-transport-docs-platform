@@ -22,7 +22,4 @@ export class CarDto {
   @IsString()
   @IsOptional()
   note: string;
-
-  @IsString()
-  user: string;
 }
