@@ -7,15 +7,12 @@ import {
   Patch,
   Delete,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from 'src/auth/entities/user.entity';
-import { GetUser } from 'src/auth/get-user-decorator';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+
 import { CarsService } from './car.service';
-import { CreateCarDto } from './dto/create-car.dto';
-import { SearchCarDto } from './dto/search-car.dto';
-import { Car } from './entities/car.entity';
+import { CarDto } from './dto';
 
 @Controller('cars')
 @UseGuards(AuthGuard())
@@ -23,47 +20,37 @@ export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   @Get()
-  getAll(
-    @GetUser() user: User,
-    @Query() searchCarDto: SearchCarDto,
-  ): Promise<Car[]> {
-    return this.carsService.getAll(user, searchCarDto);
+  getCars(@GetUser('id') userId: number) {
+    return this.carsService.getCars(userId);
   }
 
   @Get('/:numberPlate')
-  getByNumberPlate(
+  getCarByNumberPlate(
+    @GetUser() userId: number,
     @Param('numberPlate') numberPlate: string,
-    @GetUser() user: User,
-  ): Promise<Car> {
-    return this.carsService.getByNumberPlate(numberPlate, user);
-  }
-
-  @Patch('/:numberPlate')
-  updateByNumberPlate(
-    @Param('numberPlate') numberPlate: string,
-    @Body() createCarDto: CreateCarDto,
-    @GetUser() user: User,
-  ): Promise<Car> {
-    return this.carsService.updateByNumberPlate(
-      numberPlate,
-      createCarDto,
-      user,
-    );
+  ) {
+    return this.carsService.getCarByNumberPlate(userId, numberPlate);
   }
 
   @Post()
-  create(
-    @Body() createCarDto: CreateCarDto,
-    @GetUser() user: User,
-  ): Promise<void> {
-    return this.carsService.create(createCarDto, user);
+  createCar(@GetUser() userId: number, @Body() carDto: CarDto) {
+    return this.carsService.createCar(userId, carDto);
+  }
+
+  @Patch('/:numberPlate')
+  editCarByNumberPlate(
+    @GetUser() userId: number,
+    @Param('numberPlate') numberPlate: string,
+    @Body() carDto: CarDto,
+  ) {
+    return this.carsService.editCarByNumberPlate(userId, numberPlate, carDto);
   }
 
   @Delete('/:numberPlate')
-  deleteByNumberPlate(
+  deleteCarByNumberPlate(
+    @GetUser() userId: number,
     @Param('numberPlate') numberPlate: string,
-    @GetUser() user: User,
-  ): Promise<void> {
-    return this.carsService.deleteByNumberPlate(numberPlate, user);
+  ) {
+    return this.carsService.deleteCarByNumberPlate(userId, numberPlate);
   }
 }

@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class CreateCarDto {
+export class CarDto {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -10,7 +10,10 @@ export class CreateCarDto {
   numberPlate: string;
 
   @IsNotEmpty()
-  date: string;
+  startDate: string;
+
+  @IsNotEmpty()
+  endDate: string;
 
   @IsString()
   @IsNotEmpty()
@@ -19,4 +22,7 @@ export class CreateCarDto {
   @IsString()
   @IsOptional()
   note: string;
+
+  @IsString()
+  user: string;
 }

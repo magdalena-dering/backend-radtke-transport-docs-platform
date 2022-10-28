@@ -1,45 +1,47 @@
-import { ERROR_DUPLICATE_KEY_VALUE } from '../../consts';
+import { PrismaService } from './../prisma/prisma.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import {
   Injectable,
-  ConflictException,
-  InternalServerErrorException,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './jwt-payload.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private authRepository: Repository<User>,
-    private jwtService: JwtService,
+    private prisma: PrismaService,
+    private jwt: JwtService,
+    private config: ConfigService,
   ) {}
 
-  async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+  async signUp(authCredentialsDto: AuthCredentialsDto) {
     const { username, password } = authCredentialsDto;
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
-    const user = this.authRepository.create({
-      username,
-      password: hashedPassword,
-    });
-
+    console.log({ authCredentialsDto });
     try {
-      await this.authRepository.save(user);
+      const user = await this.prisma.user.create({
+        data: {
+          username,
+          password: hashedPassword,
+        },
+      });
+
+      delete user.password;
+
+      return user;
     } catch (error) {
-      if (error.code === ERROR_DUPLICATE_KEY_VALUE) {
-        throw new ConflictException(
-          `The username: ${username} already exists.`,
-        );
-      } else {
-        throw new InternalServerErrorException();
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
       }
+      throw error;
     }
   }
 
@@ -47,13 +49,20 @@ export class AuthService {
     authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ accessToken: string }> {
     const { username, password } = authCredentialsDto;
-    const userDB = await this.authRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
 
-    if (userDB && (await bcrypt.compare(password, userDB.password))) {
-      const payload: JwtPayload = { username };
-      const accessToken: string = await this.jwtService.sign(payload);
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const secret = this.config.get('JWT_SECRET');
+      const payload = {
+        sub: { userId: user.id },
+        username,
+      };
+      const accessToken: string = await this.jwt.signAsync(payload, {
+        expiresIn: 3600,
+        secret: secret,
+      });
 
       return { accessToken };
     } else {
