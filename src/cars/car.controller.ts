@@ -10,12 +10,13 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { UserCarOwnershipGuard } from 'src/auth/guard/user-car-ownership.guard';
 
 import { CarsService } from './car.service';
 import { CarDto } from './dto';
 
 @Controller('cars')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), UserCarOwnershipGuard)
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
@@ -39,18 +40,14 @@ export class CarsController {
 
   @Patch('/:numberPlate')
   editCarByNumberPlate(
-    @GetUser('id') userId: number,
     @Param('numberPlate') numberPlate: string,
     @Body() carDto: CarDto,
   ) {
-    return this.carsService.editCarByNumberPlate(userId, numberPlate, carDto);
+    return this.carsService.editCarByNumberPlate(numberPlate, carDto);
   }
 
   @Delete('/:numberPlate')
-  deleteCarByNumberPlate(
-    @GetUser('id') userId: number,
-    @Param('numberPlate') numberPlate: string,
-  ) {
-    return this.carsService.deleteCarByNumberPlate(userId, numberPlate);
+  deleteCarByNumberPlate(@Param('numberPlate') numberPlate: string) {
+    return this.carsService.deleteCarByNumberPlate(numberPlate);
   }
 }

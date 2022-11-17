@@ -1,7 +1,6 @@
 import { PrismaService } from './../prisma/prisma.service';
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,14 +12,6 @@ import { Car } from '@prisma/client';
 @Injectable()
 export class CarsService {
   constructor(private prisma: PrismaService) {}
-
-  // TODO: set as guard
-  checkUserCarOwnership = (car: Car, userId: number) => {
-    if (!car || car.userId !== userId) {
-      throw new ForbiddenException('Access to resources denied');
-    }
-    return true;
-  };
 
   numberPlateNotFound = (car: Car, numberPlate: string) => {
     if (!car) {
@@ -77,21 +68,14 @@ export class CarsService {
     }
   }
 
-  async editCarByNumberPlate(
-    userId: number,
-    numberPlate: string,
-    carDto: CarDto,
-  ) {
+  async editCarByNumberPlate(numberPlate: string, carDto: CarDto) {
     const car = await this.prisma.car.findUnique({
       where: {
         numberPlate: numberPlate,
       },
     });
 
-    if (
-      this.numberPlateNotFound(car, numberPlate) &&
-      this.checkUserCarOwnership(car, userId)
-    ) {
+    if (this.numberPlateNotFound(car, numberPlate)) {
       return this.prisma.car.update({
         where: {
           numberPlate: numberPlate,
@@ -103,17 +87,14 @@ export class CarsService {
     }
   }
 
-  async deleteCarByNumberPlate(userId: number, numberPlate: string) {
+  async deleteCarByNumberPlate(numberPlate: string) {
     const car = await this.prisma.car.findUnique({
       where: {
         numberPlate: numberPlate,
       },
     });
 
-    if (
-      this.numberPlateNotFound(car, numberPlate) &&
-      this.checkUserCarOwnership(car, userId)
-    ) {
+    if (this.numberPlateNotFound(car, numberPlate)) {
       return this.prisma.car.delete({
         where: {
           numberPlate: numberPlate,
