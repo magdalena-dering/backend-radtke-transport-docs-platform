@@ -15,7 +15,7 @@ import { CarsService } from './car.service';
 import { CarDto } from './dto';
 
 @Controller('cars')
-@UseGuards(AuthGuard())
+@UseGuards(AuthGuard('jwt'))
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
@@ -26,20 +26,20 @@ export class CarsController {
 
   @Get('/:numberPlate')
   getCarByNumberPlate(
-    @GetUser() userId: number,
+    @GetUser('id') userId: number,
     @Param('numberPlate') numberPlate: string,
   ) {
     return this.carsService.getCarByNumberPlate(userId, numberPlate);
   }
 
   @Post()
-  createCar(@GetUser() userId: number, @Body() carDto: CarDto) {
+  createCar(@GetUser('id') userId: number, @Body() carDto: CarDto) {
     return this.carsService.createCar(userId, carDto);
   }
 
   @Patch('/:numberPlate')
   editCarByNumberPlate(
-    @GetUser() userId: number,
+    @GetUser('id') userId: number,
     @Param('numberPlate') numberPlate: string,
     @Body() carDto: CarDto,
   ) {
@@ -48,7 +48,7 @@ export class CarsController {
 
   @Delete('/:numberPlate')
   deleteCarByNumberPlate(
-    @GetUser() userId: number,
+    @GetUser('id') userId: number,
     @Param('numberPlate') numberPlate: string,
   ) {
     return this.carsService.deleteCarByNumberPlate(userId, numberPlate);

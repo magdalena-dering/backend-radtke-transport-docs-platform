@@ -1,67 +1,50 @@
 import { PrismaService } from './../prisma/prisma.service';
-import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import {
-  Injectable,
-  UnauthorizedException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { UserAccountCredentialsDto } from './dto/user-account-credentials.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private jwt: JwtService,
-    private config: ConfigService,
-  ) {}
+  constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
-  async signUp(authCredentialsDto: AuthCredentialsDto) {
-    const { username, password } = authCredentialsDto;
+  async signUp(registerUserDto: RegisterUserDto) {
+    const { email, password, firstName, lastName } = registerUserDto;
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
-    try {
-      const user = await this.prisma.user.create({
-        data: {
-          username,
-          password: hashedPassword,
-        },
-      });
 
-      delete user.password;
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+      },
+    });
 
-      return user;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials taken');
-        }
-      }
-      throw error;
-    }
+    delete user.password;
+
+    return user;
   }
 
   async signIn(
-    authCredentialsDto: AuthCredentialsDto,
+    userAccountCredentialsDto: UserAccountCredentialsDto,
   ): Promise<{ accessToken: string }> {
-    const { username, password } = authCredentialsDto;
+    const { email, password } = userAccountCredentialsDto;
+
     const user = await this.prisma.user.findUnique({
-      where: { username: username },
+      where: { email },
     });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const secret = this.config.get('JWT_SECRET');
-      const payload = {
+      const payload: JwtPayload = {
         sub: { userId: user.id },
-        username,
+        email,
       };
-      const accessToken: string = await this.jwt.signAsync(payload, {
-        expiresIn: 3600,
-        secret: secret,
-      });
+      const accessToken: string = this.jwt.sign(payload);
 
       return { accessToken };
     } else {
