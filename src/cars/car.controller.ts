@@ -16,7 +16,7 @@ import { CarsService } from './car.service';
 import { CarDto } from './dto';
 
 @Controller('cars')
-@UseGuards(AuthGuard('jwt'), UserCarOwnershipGuard)
+@UseGuards(AuthGuard('jwt'))
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
@@ -38,6 +38,7 @@ export class CarsController {
     return this.carsService.createCar(userId, carDto);
   }
 
+  @UseGuards(UserCarOwnershipGuard)
   @Patch('/:numberPlate')
   editCarByNumberPlate(
     @Param('numberPlate') numberPlate: string,
@@ -46,6 +47,7 @@ export class CarsController {
     return this.carsService.editCarByNumberPlate(numberPlate, carDto);
   }
 
+  @UseGuards(UserCarOwnershipGuard)
   @Delete('/:numberPlate')
   deleteCarByNumberPlate(@Param('numberPlate') numberPlate: string) {
     return this.carsService.deleteCarByNumberPlate(numberPlate);
