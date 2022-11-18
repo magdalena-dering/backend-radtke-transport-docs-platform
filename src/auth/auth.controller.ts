@@ -7,14 +7,14 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { UserDto } from '../dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
-  async signUp(@Body() registerUserDto: RegisterUserDto) {
+  async signUp(@Body() registerUserDto: UserDto) {
     try {
       await this.authService.signUp(registerUserDto);
     } catch (error) {

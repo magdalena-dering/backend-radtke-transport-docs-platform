@@ -3,14 +3,14 @@ import { UserAccountCredentialsDto } from './dto/user-account-credentials.dto';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { UserDto } from './../dto';
 import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
-  async signUp(registerUserDto: RegisterUserDto) {
+  async signUp(registerUserDto: UserDto) {
     const { email, password, firstName, lastName } = registerUserDto;
 
     const salt = await bcrypt.genSalt();

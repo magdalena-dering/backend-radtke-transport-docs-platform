@@ -1,4 +1,4 @@
-import { PASSWORD_REGEX_PATTERN } from './../../../consts';
+import { PASSWORD_REGEX_PATTERN } from './../../consts';
 import {
   IsEmail,
   IsString,
