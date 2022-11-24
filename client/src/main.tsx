@@ -3,8 +3,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Dashboard } from './components/dashboard';
-import { SignIn } from './components/signIn';
-import { SignUp } from './components/signUp';
+import { SignIn } from './components/sign-in';
+import { SignUp } from './components/sing-up';
 
 const router = createBrowserRouter([
   {

@@ -7,19 +7,10 @@ import { FormValues } from '../../types';
 import { PASSWORD_REGEX_PATTERN } from '../../../consts'
 import { Container } from '../container';
 
-// const theme = createTheme();
-
 export const SignUp = () => {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //   });
-  // };
+
   const { handleSubmit, control } = useForm<FormValues>()
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
@@ -27,10 +18,9 @@ export const SignUp = () => {
     try {
       setError("")
       setLoading(true)
-      // await auth.signInWithEmailAndPassword(email, password)
-      // history.push("/")
+      // TODO: Connect to the server
     } catch {
-      setError("Failed to sign in")
+      setError("Failed to sign up")
     }
     setLoading(false)
   }

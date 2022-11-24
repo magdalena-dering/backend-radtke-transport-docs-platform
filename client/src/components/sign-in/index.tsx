@@ -1,23 +1,13 @@
 import { useState } from 'react';
-import { Avatar, Box, Button, CssBaseline, TextField, ThemeProvider, Typography } from '@mui/material';
+import { Avatar, Box, Button, CssBaseline, TextField, Typography } from '@mui/material';
 import { LockClockOutlined } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { EMAIL_REGEX_PATTERN, PASSWORD_REGEX_PATTERN } from '../../../consts';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { FormValues } from '../../types';
-import theme from '../../../theme';
 import { Container } from '../container';
 
 export const SignIn = () => {
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //   });
-  // };
-
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -28,15 +18,12 @@ export const SignIn = () => {
     try {
       setError("")
       setLoading(true)
-      // await auth.signInWithEmailAndPassword(email, password)
-      // history.push("/")
+      // TODO: Connect to the server
     } catch {
       setError("Failed to sign in")
     }
     setLoading(false)
   }
-
-
 
   return (
     <Container>

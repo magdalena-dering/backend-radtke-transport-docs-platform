@@ -6,6 +6,7 @@ interface IContainer {
 }
 
 export const Container: React.FC<IContainer> = ({ children }) =>
+// TODO: Provide the ThemeProvider somewhere in the root component
     <ThemeProvider theme={theme}>
         <CustomContainer component="main" maxWidth="xs">
             {children}
