@@ -42,7 +42,7 @@ export class CarsService {
   async getCarByNumberPlate(userId: number, numberPlate: string) {
     const car = await this.prisma.car.findFirst({
       where: {
-        numberPlate: numberPlate,
+        numberPlate,
         userId,
       },
     });
@@ -58,7 +58,7 @@ export class CarsService {
     try {
       return await this.prisma.car.create({
         data: {
-          userId: userId,
+          userId,
           ...carDto,
         },
       });
@@ -71,14 +71,14 @@ export class CarsService {
   async editCarByNumberPlate(numberPlate: string, carDto: CarDto) {
     const car = await this.prisma.car.findUnique({
       where: {
-        numberPlate: numberPlate,
+        numberPlate,
       },
     });
 
     if (this.numberPlateNotFound(car, numberPlate)) {
       return this.prisma.car.update({
         where: {
-          numberPlate: numberPlate,
+          numberPlate,
         },
         data: {
           ...carDto,
@@ -90,14 +90,14 @@ export class CarsService {
   async deleteCarByNumberPlate(numberPlate: string) {
     const car = await this.prisma.car.findUnique({
       where: {
-        numberPlate: numberPlate,
+        numberPlate,
       },
     });
 
     if (this.numberPlateNotFound(car, numberPlate)) {
       return this.prisma.car.delete({
         where: {
-          numberPlate: numberPlate,
+          numberPlate,
         },
       });
     }

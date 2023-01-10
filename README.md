@@ -63,3 +63,10 @@ $ npm run test:cov
 - bcrypt
 - class-validator
 - class-transformer
+
+## Bug to fix:
+### Changing password. Steps to reproduce:
+- sign up new user
+- change password of the user
+- log in the user with changed password
+- got 401
