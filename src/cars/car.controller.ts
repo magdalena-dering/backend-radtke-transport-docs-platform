@@ -25,12 +25,10 @@ export class CarsController {
     return this.carsService.getCars(userId);
   }
 
+  @UseGuards(UserCarOwnershipGuard)
   @Get('/:numberPlate')
-  getCarByNumberPlate(
-    @GetUser('id') userId: number,
-    @Param('numberPlate') numberPlate: string,
-  ) {
-    return this.carsService.getCarByNumberPlate(userId, numberPlate);
+  getCarByNumberPlate(@Param('numberPlate') numberPlate: string) {
+    return this.carsService.getCarByNumberPlate(numberPlate);
   }
 
   @Post()

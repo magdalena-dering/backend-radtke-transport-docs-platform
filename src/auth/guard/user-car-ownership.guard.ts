@@ -19,6 +19,7 @@ export class UserCarOwnershipGuard implements CanActivate {
         numberPlate: params.numberPlate,
       },
     });
+    delete user.password;
 
     if (!car || car.userId !== user.id) {
       throw new ForbiddenException('Access to resources denied');
