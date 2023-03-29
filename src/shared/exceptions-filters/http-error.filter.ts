@@ -9,9 +9,8 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { Prisma } from '@prisma/client';
 import { CustomHttpExceptionResponse } from './types/http-exception-response.interface';
 
-import { mapToPrismaError } from './helpers/prisma-error.helper';
-import { mapToHttpError } from './helpers/http-error.helper';
 import { getErrorLog, writeErrorLogToFile } from './helpers/error-log.helper';
+import { getErrorMessage } from './helpers/get-error-message.helper';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -26,18 +25,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
     const { path, method } = request;
-    const param = request.params.numberPlate;
+
     const statusCode: HttpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const isPrismaError =
-      exception instanceof Prisma.PrismaClientKnownRequestError;
-
-    const message: string = isPrismaError
-      ? mapToPrismaError(exception)
-      : mapToHttpError(statusCode, param);
+    const message: string = getErrorMessage(exception);
 
     const responseBody: CustomHttpExceptionResponse = {
       timestamp: new Date().toISOString(),
