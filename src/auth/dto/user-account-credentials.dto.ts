@@ -1,11 +1,11 @@
 import { PASSWORD_REGEX_PATTERN } from '../../../consts';
 import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
-export class AuthCredentialsDto {
+export class UserAccountCredentialsDto {
   @IsString()
   @MinLength(8)
-  @MaxLength(20)
-  username: string;
+  @MaxLength(32)
+  email: string;
 
   @IsString()
   @MinLength(8)

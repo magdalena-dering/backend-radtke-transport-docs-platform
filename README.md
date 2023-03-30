@@ -57,9 +57,16 @@ $ npm run test:cov
 ```
 
 ## Tools and libraries:
-- TypeORM
+- Prisma
 - nestjs-joi
 - passport-jwt
 - bcrypt
 - class-validator
 - class-transformer
+
+## Bugs to fix:
+- decrypt user password when user details has been changed
+
+## Docker
+- create service from docker-compose.yml file - `docker compose up {name of the service} -d`
+- check running containers - `docker ps`

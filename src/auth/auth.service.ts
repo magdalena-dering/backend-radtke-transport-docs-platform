@@ -1,59 +1,50 @@
-import { ERROR_DUPLICATE_KEY_VALUE } from '../../consts';
-import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import {
-  Injectable,
-  ConflictException,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { PrismaService } from './../prisma/prisma.service';
+import { UserAccountCredentialsDto } from './dto/user-account-credentials.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { UserDto } from './../dto';
 import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectRepository(User) private authRepository: Repository<User>,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
-  async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    const { username, password } = authCredentialsDto;
+  async signUp(registerUserDto: UserDto) {
+    const { email, password, firstName, lastName } = registerUserDto;
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
-    const user = this.authRepository.create({
-      username,
-      password: hashedPassword,
+
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+      },
     });
 
-    try {
-      await this.authRepository.save(user);
-    } catch (error) {
-      if (error.code === ERROR_DUPLICATE_KEY_VALUE) {
-        throw new ConflictException(
-          `The username: ${username} already exists.`,
-        );
-      } else {
-        throw new InternalServerErrorException();
-      }
-    }
+    delete user.password;
+
+    return user;
   }
 
   async signIn(
-    authCredentialsDto: AuthCredentialsDto,
+    userAccountCredentialsDto: UserAccountCredentialsDto,
   ): Promise<{ accessToken: string }> {
-    const { username, password } = authCredentialsDto;
-    const userDB = await this.authRepository.findOne({
-      where: { username: username },
+    const { email, password } = userAccountCredentialsDto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
     });
 
-    if (userDB && (await bcrypt.compare(password, userDB.password))) {
-      const payload: JwtPayload = { username };
-      const accessToken: string = await this.jwtService.sign(payload);
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const payload: JwtPayload = {
+        sub: { userId: user.id },
+        email,
+      };
+      const accessToken: string = this.jwt.sign(payload);
 
       return { accessToken };
     } else {
